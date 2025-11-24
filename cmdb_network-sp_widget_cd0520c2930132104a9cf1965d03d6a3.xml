@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<unload unload_date="2025-11-24 17:59:17">
+<sp_widget action="INSERT_OR_UPDATE">
+<category>custom</category>
+<client_script><![CDATA[api.controller = function($scope, $rootScope, spUtil, $timeout) {
+    var c = this;
+
+    var CONFIG = {
+        baseUrl: 'https://dev357601.service-now.com/sp?id=',
+        detailsPage: 'cmdb_details',
+        iframeId: 'serversIframe',
+        ajaxClass: 'global.PortalFilterPrefs'
+    };
+
+    c.networksLoading = false;
+    c.searchTerm = '';
+
+    c.refreshNetworks = function() {
+        c.networksLoading = true;
+        
+        c.server.get({ action: 'refreshNetworks' })
+            .then(function(response) {
+                if (response.data) {
+                    c.data.networkTypes = response.data.networkTypes;
+                    c.data.totalNetworks = response.data.totalNetworks;
+                    c.data.totalTypes = response.data.totalTypes;
+                }
+            })
+            .catch(function(error) {
+                gs.error('Error refreshing networks:', error);
+            })
+            .finally(function() {
+                c.networksLoading = false;
+                spUtil.update($scope);
+            });
+    };
+
+ c.goToDetails = function(sysClassName) {
+    console.log('Clicou em network, source deve ser: network'); // LOG 7
+    
+    var ga = new GlideAjax('global.PortalFilterPrefs');
+    ga.addParam('sysparm_name', 'saveFilter');
+    ga.addParam('sysparm_filter', sysClassName);
+    ga.addParam('sysparm_source', 'network'); // VERIFIQUE AQUI
+    
+    console.log('Enviando source: network'); // LOG 8
+    
+    ga.getXMLAnswer(function(response) {
+        console.log('Resposta:', response);
+        if (response === 'ok') {
+            window.location.href = 'https://dev357601.service-now.com/sp?id=cmdb_details&filter=' + 
+                                   encodeURIComponent(sysClassName);
+        }
+    });
+};
+    c.$onInit = function() {
+        c.refreshNetworks();
+    };
+};]]></client_script>
+<controller_as>c</controller_as>
+<css>.networks-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.network-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  padding: 20px 25px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.network-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.card-left {
+  flex: 0 0 80px;
+}
+
+.network-icon {
+  max-width: 70px;
+  max-height: 70px;
+}
+
+.card-center {
+  flex: 1;
+  padding-left: 15px;
+  font-size: 16px;
+  color: #555;
+  position: relative;
+}
+
+.network-name {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.construction-badge {
+  background-color: #f2a900;
+  border-radius: 3px;
+  color: white;
+  font-size: 10px;
+  padding: 2px 5px;
+  text-transform: uppercase;
+}
+
+.card-right {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+  padding-left: 20px;
+  min-width: 60px;
+  text-align: right;
+}
+
+/* Estilos para o cabeçalho */
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-bar {
+  width: 250px;
+}
+
+.search-bar .form-control {
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.search-bar .form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.loading-container {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .networks-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .widget-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .search-bar {
+    flex: 1;
+    width: auto;
+  }
+}</css>
+<data_table>sp_instance</data_table>
+<demo_data/>
+<description/>
+<docs display_value=""/>
+<field_list/>
+<has_preview>false</has_preview>
+<id>cmdb_network</id>
+<internal>false</internal>
+<link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+<name>CMDB Network</name>
+<option_schema/>
+<public>false</public>
+<roles/>
+<script><![CDATA[var NETWORK_CLASS_MAPPING = {
+    'cmdb_ci_netgear': { name: 'Network Gear', image: 'networkgear.png' },
+    'cmdb_ci_router': { name: 'Router', image: 'router.png' },
+    'cmdb_ci_switch': { name: 'Switch', image: 'switch.png' },
+    'cmdb_ci_firewall': { name: 'Firewall', image: 'firewall.png' },
+    'cmdb_ci_load_balancer': { name: 'Load Balancer', image: 'loadbalancer.png' },
+    'cmdb_ci_wireless_ap': { name: 'Wireless AP', image: 'wireless.png' },
+    'cmdb_ci_network': { name: 'Generic Network', image: 'genericnetwork.png' }
+};
+
+var CONFIG = {
+    defaultImage: 'genericnetwork.png',
+    operationalStatus: '1',
+    table: 'cmdb_ci_netgear'
+};
+
+function getNetworkTypes() {
+    var networkTypes = [];
+    var totalNetworks = 0;
+
+    var aggregate = new GlideAggregate(CONFIG.table);
+    aggregate.addAggregate('COUNT');
+    aggregate.addQuery('operational_status', CONFIG.operationalStatus);
+    aggregate.groupBy('sys_class_name');
+    aggregate.query();
+
+    while (aggregate.next()) {
+        var sysClassName = aggregate.sys_class_name.toString();
+        var count = parseInt(aggregate.getAggregate('COUNT'), 10);
+        var info = NETWORK_CLASS_MAPPING[sysClassName] || {
+            name: sysClassName,
+            image: CONFIG.defaultImage
+        };
+
+        networkTypes.push({
+            name: info.name,
+            image: info.image,
+            count: count,
+            sys_class_name: sysClassName
+        });
+
+        totalNetworks += count;
+    }
+
+    networkTypes.sort(function(a, b) {
+        return b.count - a.count;
+    });
+
+    return {
+        networkTypes: networkTypes,
+        totalNetworks: totalNetworks,
+        totalTypes: networkTypes.length
+    };
+}
+
+try {
+    if (!input || input.action === 'refreshNetworks') {
+        var result = getNetworkTypes();
+        data.networkTypes = result.networkTypes;
+        data.totalNetworks = result.totalNetworks;
+        data.totalTypes = result.totalTypes;
+    }
+} catch (error) {
+    gs.error('Erro ao obter dispositivos de rede: ' + error.message);
+    data.networkTypes = [];
+    data.totalNetworks = 0;
+    data.totalTypes = 0;
+}]]></script>
+<servicenow>false</servicenow>
+<sys_class_name>sp_widget</sys_class_name>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2025-11-07 17:54:44</sys_created_on>
+<sys_id>cd0520c2930132104a9cf1965d03d6a3</sys_id>
+<sys_mod_count>40</sys_mod_count>
+<sys_name>CMDB Network</sys_name>
+<sys_package display_value="Global" source="global">global</sys_package>
+<sys_policy/>
+<sys_scope display_value="Global">global</sys_scope>
+<sys_update_name>sp_widget_cd0520c2930132104a9cf1965d03d6a3</sys_update_name>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2025-11-24 16:30:53</sys_updated_on>
+<template><![CDATA[<div class="networks-widget">
+    <!-- Cabeçalho -->
+    <div class="widget-header">
+        <div class="header-left">
+            <h4>Dispositivos de Rede por Tipo</h4>
+            <small class="text-muted" ng-if="c.data.totalNetworks > 0">
+                {{c.data.totalNetworks | number}} dispositivos ativos • {{c.data.totalTypes}} tipos
+           
+          </small>
+        </div>
+        <div class="header-right">
+            <input type="text" 
+                   ng-model="c.searchTerm" 
+                   placeholder="Buscar por nome..." 
+                   class="form-control search-bar" />
+            <button class="btn btn-default btn-refresh" 
+                    ng-click="c.refreshNetworks()" 
+                    ng-disabled="c.networksLoading">
+                <span class="icon-refresh" ng-class="{'icon-spinner spinning': c.networksLoading}"></span>
+                {{c.networksLoading ? 'Atualizando...' : 'Atualizar'}}
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div ng-if="c.networksLoading" class="loading-container">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Carregando dispositivos...</span>
+        </div>
+        <p>Carregando dispositivos de rede...</p>
+    </div>
+
+    <!-- Grid de dispositivos -->
+    <div class="networks-grid" ng-if="!c.networksLoading && (c.data.networkTypes | filter: {name: c.searchTerm}).length > 0">
+        <div class="network-card" 
+             ng-repeat="type in c.data.networkTypes | filter: {name: c.searchTerm} track by type.sys_class_name" 
+             ng-click="c.goToDetails(type.sys_class_name)">
+            <div class="card-left">
+                <img ng-src="{{type.image}}" alt="{{type.name}}" class="network-icon" />
+            </div>
+            <div class="card-center">
+                <span class="network-name">{{type.name}}</span>
+                <small class="text-muted">{{type.sys_class_name}}</small>
+                <span ng-if="type.construcao" class="construction-badge">Em construção</span>
+            </div>
+            <div class="card-right">
+                <span class="network-count">{{type.count | number}}</span>
+            </div>
+        </div>  
+    </div>
+
+    <!-- Mensagem vazia -->
+    <div ng-if="!c.networksLoading && (c.data.networkTypes | filter: {name: c.searchTerm}).length === 0" class="empty-state">
+        <p ng-if="c.data.networkTypes.length === 0">Nenhum dispositivo de rede ativo encontrado na CMDB.</p>
+        <p ng-if="c.data.networkTypes.length > 0">Nenhum dispositivo encontrado para "{{c.searchTerm}}".</p>
+    </div>
+</div>]]></template>
+</sp_widget>
+</unload>

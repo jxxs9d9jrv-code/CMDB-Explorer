@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<unload unload_date="2025-11-24 17:58:59">
+<sp_widget action="INSERT_OR_UPDATE">
+<category>custom</category>
+<client_script><![CDATA[api.controller = function($scope, $rootScope, spUtil, $timeout) {
+    var c = this;
+
+    var CONFIG = {
+        detailsUrl: 'https://dev357601.service-now.com/sp?id=cmdb_details',
+        ajaxClass: 'global.PortalFilterPrefs'
+    };
+
+    c.serversLoading = false;
+    c.searchTerm = '';
+
+    c.refreshServers = function() {
+        c.serversLoading = true;
+
+        c.server.get({ action: 'refreshServers' })
+            .then(function(response) {
+                if (response.data) {
+                    c.data.serverTypes = response.data.serverTypes;
+                    c.data.totalServers = response.data.totalServers;
+                    c.data.totalTypes = response.data.totalTypes;
+                }
+            })
+            .catch(function(error) {
+                gs.error('Error refreshing servers:', error);
+            })
+            .finally(function() {
+                c.serversLoading = false;
+                spUtil.update($scope);
+            });
+    };
+
+   c.goToDetails = function(sysClassName) {
+    var ga = new GlideAjax('global.PortalFilterPrefs');
+    ga.addParam('sysparm_name', 'saveFilter');
+    ga.addParam('sysparm_filter', sysClassName);
+    ga.addParam('sysparm_source', 'servers'); // ADICIONE ESTA LINHA
+    
+    ga.getXMLAnswer(function(response) {
+        if (response === 'ok') {
+            window.location.href = 'https://dev357601.service-now.com/sp?id=cmdb_details&filter=' + 
+                                   encodeURIComponent(sysClassName);
+        }
+    });
+};
+
+    c.$onInit = function() {
+        c.refreshServers();
+    };
+};]]></client_script>
+<controller_as>c</controller_as>
+<css>.servers-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 colunas fixas */
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.server-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  padding: 20px 25px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.server-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.card-left {
+  flex: 0 0 80px;
+}
+
+.server-icon {
+  max-width: 70px;
+  max-height: 70px;
+}
+
+.card-center {
+  flex: 1;
+  padding-left: 15px;
+  font-size: 16px;
+  color: #555;
+  position: relative;
+}
+
+.server-name {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.construction-badge {
+  background-color: #f2a900;
+  border-radius: 3px;
+  color: white;
+  font-size: 10px;
+  padding: 2px 5px;
+  text-transform: uppercase;
+}
+
+.card-right {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+  padding-left: 20px;
+  min-width: 60px;
+  text-align: right;
+}
+
+/* Responsividade para telas pequenas */
+@media (max-width: 768px) {
+  .servers-grid {
+    grid-template-columns: 1fr; /* 1 coluna em mobile */
+  }
+}
+
+/* Estilos para o cabeçalho */
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;  /* Espaço entre barra de pesquisa e botão */
+}
+
+.search-bar {
+  width: 250px;  /* Largura fixa para a barra, ajuste se necessário */
+}
+
+.search-bar .form-control {
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.search-bar .form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Responsividade para mobile */
+@media (max-width: 768px) {
+  .widget-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .search-bar {
+    flex: 1;
+    width: auto;
+  }
+}</css>
+<data_table>sp_instance</data_table>
+<demo_data/>
+<description/>
+<docs display_value=""/>
+<field_list/>
+<has_preview>false</has_preview>
+<id>cmdb_servers_widget</id>
+<internal>false</internal>
+<link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+<name>CMDB Servers</name>
+<option_schema/>
+<public>false</public>
+<roles/>
+<script><![CDATA[var SERVER_CLASS_MAPPING = {
+    'cmdb_ci_aix_server': { name: 'AIX Server', image: 'aixserver.png', construcao: true },
+    'cmdb_ci_esx_server': { name: 'ESX Server', image: 'aixserver.png' },
+    'cmdb_ci_hcx_server': { name: 'HCX Server', image: 'aixserver.png' },
+    'cmdb_ci_hpux_server': { name: 'HPUX Server', image: 'aixserver.png', construcao: true },
+    'cmdb_ci_hyperv_server': { name: 'Hyper-V Servers', image: 'aixserver.png' },
+    'cmdb_ci_linux_server': { name: 'Linux Server', image: 'linuxserver.png' },
+    'cmdb_ci_server': { name: 'Generic Server', image: 'genericservers.png' },
+    'cmdb_ci_solaris_server': { name: 'Solaris Server', image: 'aixserver.png', construcao: true },
+    'cmdb_ci_vmware_vcenter': { name: 'VMware Vcenter', image: 'aixserver.png' },
+    'cmdb_ci_win_server': { name: 'Windows Server', image: 'windowsserver.png' }
+};
+
+var CONFIG = {
+    table: 'cmdb_ci_server',
+    defaultImage: 'unixservers.png',
+    operationalStatus: '1'
+};
+
+function getServerTypes() {
+    var serverTypes = [];
+    var totalServers = 0;
+
+    var aggregate = new GlideAggregate(CONFIG.table);
+    aggregate.addAggregate('COUNT');
+    aggregate.addQuery('operational_status', CONFIG.operationalStatus);
+    aggregate.groupBy('sys_class_name');
+    aggregate.query();
+
+    while (aggregate.next()) {
+        var sysClassName = aggregate.sys_class_name.toString();
+        var count = parseInt(aggregate.getAggregate('COUNT'), 10);
+        var info = SERVER_CLASS_MAPPING[sysClassName] || {
+            name: sysClassName,
+            image: CONFIG.defaultImage
+        };
+
+        serverTypes.push({
+            name: info.name,
+            image: info.image,
+            count: count,
+            construcao: info.construcao || false,
+            sys_class_name: sysClassName
+        });
+
+        totalServers += count;
+    }
+
+    serverTypes.sort(function(a, b) {
+        return b.count - a.count;
+    });
+
+    return {
+        serverTypes: serverTypes,
+        totalServers: totalServers,
+        totalTypes: serverTypes.length
+    };
+}
+
+try {
+    if (!input || input.action === 'refreshServers') {
+        var result = getServerTypes();
+        data.serverTypes = result.serverTypes;
+        data.totalServers = result.totalServers;
+        data.totalTypes = result.totalTypes;
+    }
+} catch (error) {
+    gs.error('Erro ao obter servidores: ' + error.message);
+    data.serverTypes = [];
+    data.totalServers = 0;
+    data.totalTypes = 0;
+}]]></script>
+<servicenow>false</servicenow>
+<sys_class_name>sp_widget</sys_class_name>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2025-11-04 16:53:39</sys_created_on>
+<sys_id>9c5a308593c1f2104a9cf1965d03d687</sys_id>
+<sys_mod_count>68</sys_mod_count>
+<sys_name>CMDB Servers</sys_name>
+<sys_package display_value="Global" source="global">global</sys_package>
+<sys_policy/>
+<sys_scope display_value="Global">global</sys_scope>
+<sys_update_name>sp_widget_9c5a308593c1f2104a9cf1965d03d687</sys_update_name>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2025-11-24 16:31:35</sys_updated_on>
+<template><![CDATA[<div class="servers-widget">
+    <!-- Cabeçalho -->
+    <div class="widget-header">
+        <div class="header-left">
+            <h4>Servidores por Tipo</h4>
+            <small class="text-muted" ng-if="c.data.totalServers > 0" >
+                {{c.data.totalServers | number}} servidores ativos • {{c.data.totalTypes}} tipos
+            </small>
+        </div>
+        <div class="header-right">
+            <input type="text" 
+                   ng-model="c.searchTerm" 
+                   placeholder="Buscar por nome..." 
+                   class="form-control search-bar" />
+            <button class="btn btn-default btn-refresh" 
+                    ng-click="c.refreshServers()" 
+                    ng-disabled="c.serversLoading">
+                <span class="icon-refresh" ng-class="{'icon-spinner spinning': c.serversLoading}"></span>
+                {{c.serversLoading ? 'Atualizando...' : 'Atualizar'}}
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div ng-if="c.serversLoading" class="loading-container">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Carregando servidores...</span>
+        </div>
+        <p>Carregando servidores...</p>
+    </div>
+
+    <!-- Grid de servidores -->
+    <div class="servers-grid" ng-if="!c.serversLoading && (c.data.serverTypes | filter: {name: c.searchTerm}).length > 0">
+        <div class="server-card" 
+             ng-repeat="type in c.data.serverTypes | filter: {name: c.searchTerm} track by type.sys_class_name" 
+             ng-click="c.goToDetails(type.sys_class_name)">
+            <div class="card-left">
+                <img ng-src="{{type.image}}" alt="{{type.name}}" class="server-icon" />
+            </div>
+            <div class="card-center">
+                <span class="server-name">{{type.name}}</span>
+                <small class="text-muted">{{type.sys_class_name}}</small>
+                <span ng-if="type.construcao" class="construction-badge">Em construção</span>
+            </div>
+            <div class="card-right">
+                <span class="server-count">{{type.count | number}}</span>
+            </div>
+        </div>  
+    </div>
+
+    <!-- Mensagem vazia -->
+    <div ng-if="!c.serversLoading && (c.data.serverTypes | filter: {name: c.searchTerm}).length === 0" class="empty-state">
+        <p ng-if="c.data.serverTypes.length === 0">Nenhum servidor ativo encontrado na CMDB.</p>
+        <p ng-if="c.data.serverTypes.length > 0">Nenhum servidor encontrado para "{{c.searchTerm}}".</p>
+    </div>
+</div>]]></template>
+</sp_widget>
+</unload>

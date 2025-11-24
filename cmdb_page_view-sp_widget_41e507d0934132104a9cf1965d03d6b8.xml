@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<unload unload_date="2025-11-24 17:58:36">
+<sp_widget action="INSERT_OR_UPDATE">
+<category>custom</category>
+<client_script><![CDATA[api.controller = function($scope, $rootScope, spUtil, $sce) {
+    var c = this;
+    
+    var VIEW_CONFIG = {
+        servers: {
+            title: 'Servers Management',
+            icon: 'fa-server',
+            url: 'https://dev357601.service-now.com/sp?id=cmdb_servers_page'
+        },
+        network: {
+            title: 'Network Devices', 
+            icon: 'fa-sitemap',
+            url: 'https://dev357601.service-now.com/sp?id=cmdb_network'
+        },
+        server_details: {
+            title: 'Server Details',
+            icon: 'fa-list'
+        }
+    };
+
+    c.currentView = 'servers';
+    c.filterParam = '';
+
+    function getViewConfig(viewName) {
+        return VIEW_CONFIG[viewName] || {};
+    }
+
+    c.getViewIcon = function() {
+        return getViewConfig(c.currentView).icon || 'fa-file';
+    };
+
+    c.getViewTitle = function() {
+        return getViewConfig(c.currentView).title || c.currentView;
+    };
+
+    c.getServersUrl = function() {
+        return $sce.trustAsResourceUrl(VIEW_CONFIG.servers.url);
+    };
+
+    c.getNetworkUrl = function() {
+        return $sce.trustAsResourceUrl(VIEW_CONFIG.network.url);
+    };
+
+    c.changeView = function(viewName, filterParam) {
+        if (!VIEW_CONFIG[viewName]) return;
+
+        c.currentView = viewName;
+        c.filterParam = filterParam || '';
+        spUtil.update($scope);
+    };
+
+    $rootScope.$on('cmdb.view.changed', function(event, data) {
+        var viewName = typeof data === 'object' ? data.view : data;
+        var filter = typeof data === 'object' ? data.filter : '';
+        c.changeView(viewName, filter);
+    });
+
+    c.$onInit = function() {
+        c.changeView('servers');
+    };
+};]]></client_script>
+<controller_as>c</controller_as>
+<css>.page-view-container {
+  margin: auto;
+  padding: 20px;
+  width: calc(100% - 40px);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.page-title {
+  color: #2c3e50;
+  font-weight: 600;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.page-content {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  padding: 25px;
+  min-height: 60vh;
+  width: 100%;
+}
+
+.view-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-frame {
+  width: 100%;
+  height: 70vh;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: white;
+}
+
+.dashboard-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  color: #666;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-style: italic;
+}
+
+.servers-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.server-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  padding: 20px 25px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.server-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.card-left {
+  flex: 0 0 80px;
+}
+
+.server-icon {
+  max-width: 70px;
+  max-height: 70px;
+}
+
+.card-center {
+  flex: 1;
+  padding-left: 15px;
+  font-size: 16px;
+  color: #555;
+  position: relative;
+}
+
+.server-name {
+  font-weight: 700;
+  font-size: 16px;
+  color: #2c3e50;
+}
+
+.construction-badge {
+  background-color: #f2a900;
+  border-radius: 3px;
+  color: white;
+  font-size: 10px;
+  padding: 2px 5px;
+  text-transform: uppercase;
+}
+
+.card-right {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+  padding-left: 20px;
+  min-width: 60px;
+  text-align: right;
+}
+
+/* Responsividade para telas pequenas */
+@media (max-width: 768px) {
+  .page-view-container {
+    padding: 15px;
+    width: calc(100% - 30px);
+  }
+  
+  .page-content {
+    padding: 15px;
+  }
+  
+  .servers-grid {
+    grid-template-columns: 1fr; /* 1 coluna em mobile */
+  }
+  
+  .dashboard-frame {
+    height: 60vh;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .page-actions {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-view-container {
+    padding: 10px;
+    width: calc(100% - 20px);
+  }
+  
+  .server-card {
+    padding: 15px;
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .card-center {
+    padding-left: 0;
+    padding-top: 10px;
+  }
+  
+  .card-right {
+    padding-left: 0;
+    padding-top: 10px;
+  }
+}
+
+/* Estilos para o botão voltar */
+.page-title-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.back-button {
+  margin-right: 10px;
+}
+
+.back-button i {
+  margin-right: 5px;
+}</css>
+<data_table>sp_instance</data_table>
+<demo_data/>
+<description/>
+<docs display_value=""/>
+<field_list/>
+<has_preview>false</has_preview>
+<id>cmdb_page_view</id>
+<internal>false</internal>
+<link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+<name>CMDB Page View</name>
+<option_schema>{
+  "table": "cmdb_ci",
+  "filter": "operational_status=1^sys_class_name=cmdb_ci_server",
+  "fields": "name,sys_class_name,operational_status,ip_address",
+  "show_filter": true,
+  "enable_filter": true
+}</option_schema>
+<public>false</public>
+<roles/>
+<script><![CDATA[var currentTime = new GlideDateTime().getDisplayValue();
+
+if (input && input.action === 'refreshServers') {
+    data.refreshTime = currentTime;
+} else {
+    data.initialized = true;
+    data.initializedTime = currentTime;
+}
+
+// Dados do CMDB
+data.viewConfig = {
+    servers: {
+        table: 'cmdb_ci_server',
+        count: new GlideAggregate('cmdb_ci_server').getCount()
+    },
+    network: {
+        table: 'cmdb_ci_netgear',
+        count: new GlideAggregate('cmdb_ci_netgear').getCount()
+    }
+};]]></script>
+<servicenow>false</servicenow>
+<sys_class_name>sp_widget</sys_class_name>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2025-11-02 19:08:55</sys_created_on>
+<sys_id>41e507d0934132104a9cf1965d03d6b8</sys_id>
+<sys_mod_count>74</sys_mod_count>
+<sys_name>CMDB Page View</sys_name>
+<sys_package display_value="Global" source="global">global</sys_package>
+<sys_policy/>
+<sys_scope display_value="Global">global</sys_scope>
+<sys_update_name>sp_widget_41e507d0934132104a9cf1965d03d6b8</sys_update_name>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2025-11-24 17:41:51</sys_updated_on>
+<template><![CDATA[<div class="page-view-container">
+    <div class="page-header" ng-if="c.currentView">
+        <div class="page-title-section">
+            <h3 class="page-title">
+                <i class="fa {{c.getViewIcon()}}"></i>
+                {{c.getViewTitle()}}
+            </h3>
+        </div>
+     
+    </div>
+    
+    <div class="page-content">
+        <!-- Servers View -->
+        <div ng-if="c.currentView === 'servers'" class="view-container">
+            <iframe id="serversIframe" ng-src="{{c.getServersUrl()}}" class="dashboard-frame"></iframe>
+        </div>
+        
+        <!-- Network View -->
+        <div ng-if="c.currentView === 'network'" class="view-container">
+            <iframe id="networkIframe" ng-src="{{c.getNetworkUrl()}}" class="dashboard-frame"></iframe>
+        </div>
+        
+        <!-- Server Details View -->
+        <div ng-if="c.currentView === 'server_details'" class="view-container">
+            <sp-widget widget="'data_table_from_instance'" 
+                       options="{ table: 'cmdb_ci_server', 
+                                 filter: 'sys_class_nameCONTAINS' + c.filterParam, 
+                                 view: 'default' }">
+            </sp-widget>
+        </div>
+    </div>
+</div>]]></template>
+</sp_widget>
+</unload>

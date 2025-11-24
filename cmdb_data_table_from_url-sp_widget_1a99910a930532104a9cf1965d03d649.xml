@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<unload unload_date="2025-11-24 17:59:34">
+<sp_widget action="INSERT_OR_UPDATE">
+<category>custom</category>
+<client_script><![CDATA[function($scope, $rootScope, $location, spUtil, $timeout, spAriaFocusManager) {
+	var canNavigate = true;
+
+	if ($scope.data.dataTableWidget)
+		angular.extend($scope.data.dataTableWidget.options, $scope.options);
+
+	$scope.$on('data_table.click', callDataClick);
+
+	$scope.$on('select2.ready', function(e, $el){
+		if ($scope.data.invalid_table){
+			e.stopPropagation();
+			$el.select2('open');
+		}
+	})
+
+	$scope.selectedTable = {
+		displayValue: $scope.data.table,
+		value: $scope.data.table
+	}
+
+	function resetParams(){
+		delete $scope.data.p;
+		delete $scope.data.o;
+		delete $scope.data.d;
+		delete $scope.data.q;
+		delete $scope.data.table;
+	}
+
+	$scope.onChange = function() {
+		resetParams();
+		$scope.data.table = $scope.selectedTable.value;
+		$scope.data.fields = "";  // reset
+		$scope.data.invalid_table = false;
+		getData(true);
+	}
+	
+	function callDataClick(e, parms) {											
+			var oid = $location.search().id;
+			var p = $scope.data.page_id || 'form';
+			var s = {id: p, table: parms.table, sys_id: parms.sys_id, view: $scope.data.view};
+			if (oid == p) {
+				s.spa = 1;
+				var t = $location.search();
+				s = angular.extend(t, s);
+				$rootScope.$broadcast('$sp.list.click', s);
+			}
+
+			var newURL = $location.search(s);
+			spAriaFocusManager.navigateToLink(newURL.url());										
+	}
+
+	function getData(updateUrl) {
+		var f = $scope.data;
+		spUtil.update($scope).then(function(data) {
+				$scope.data.dataTableWidget = null;
+				$timeout(function(){
+					$scope.data.dataTableWidget = data.dataTableWidget;
+					angular.extend($scope.data.dataTableWidget.options, $scope.options);
+					if (updateUrl)
+						setPermalink(f.table);
+				});
+		});
+	}
+
+	function setPermalink(table) {
+		$scope.ignoreLocationChange = true;
+		var searchParms = $location.search();
+		var search = {
+			spa: 1,
+			table: table,
+			id: searchParms.id
+		};
+		$location.search(search);
+	}
+
+	// NOVO: Leia o filtro do $rootScope local (se definido) ou da URL
+	$scope.$on('$sp.page.loaded', function() {
+		var filtro = $rootScope.serverFilter || $location.search().filter;  // Priorize $rootScope se disponível
+		if (filtro) {
+			console.log('Filtro lido:', filtro);
+			getData(false);  // Recarregue com o filtro
+		}
+	});
+}]]></client_script>
+<controller_as>c</controller_as>
+<css>.widget-data-table .clearfix {
+  display: none;
+}
+
+.panel-primary .panel-heading {
+  button:not(.btn-default) {
+    &amp;:focus {
+      outline-color: #FFFFFF;
+      border-color: #FFFFFF;
+      box-shadow: 0px 0px 5px #FFFFFF;
+    }
+  }
+}
+</css>
+<data_table>sp_instance_table</data_table>
+<demo_data/>
+<description/>
+<docs display_value=""/>
+<field_list>title,glyph,color,sp_page</field_list>
+<has_preview>true</has_preview>
+<id>cmdb_data_table_from_url</id>
+<internal>false</internal>
+<link><![CDATA[function link(scope, element, attrs, controller) {  }]]></link>
+<name>CMDB Data Table From URL</name>
+<option_schema>[{"hint":"Show Instance option title instead of the table's plural label","name":"use_instance_title","default_value":"false","section":"Presentation","label":"Use Instance Title","type":"boolean"},{"hint":"If enabled, show the filter in the breadcrumb section of the table","name":"enable_filter","default_value":"false","section":"Presentation","label":"Enable Filter","type":"boolean"}]</option_schema>
+<public>false</public>
+<roles/>
+<script><![CDATA[(function() {
+  deleteOptions(['table','field_list','filter','order_by', 'order_direction','order','maximum_entries']);
+
+  // **CORREÇÃO: Lê as preferências diretamente no Server Script**
+  var targetTable = gs.getUser().getPreference('cmdb_target_table') || 'cmdb_ci_server';
+  var pref = gs.getUser().getPreference('cmdb_server_filter') || '';
+
+  console.log("=== CMDB DATA TABLE ===");
+  console.log("Tabela: '" + targetTable + "'");
+  console.log("Filtro: '" + pref + "'");
+
+  data.table = targetTable;
+
+  if (!data.table) {
+    data.invalid_table = true;
+    data.table_label = "";
+    return;
+  }
+
+  var gr = new GlideRecordSecure(data.table);
+  if (!gr.isValid()) {
+    data.invalid_table = true;
+    data.table_label = data.table;
+    return;
+  }
+
+  // page is where the record URLs go, URL parameter wins
+  data.page_id = $sp.getParameter("target_page_id");
+  if (!data.page_id) {
+    var sp_page = $sp.getValue('sp_page');
+    if (sp_page) {
+      var pageGR = new GlideRecord('sp_page');
+      pageGR.get(sp_page);
+      data.page_id = pageGR.id.getDisplayValue();
+    }
+  }
+
+  // widget parameters
+  data.table_label = gr.getLabel();
+  data.fields = $sp.getListColumns(data.table, data.view);
+  copyParameters(data, ['p', 'o', 'd', 'filter','fixed_query']);
+  copyParameters(data, ['relationship_id', 'apply_to', 'apply_to_sys_id']);
+  data.filterACLs = true;
+  data.show_new = true;
+  data.show_keywords  = true;
+  data.show_breadcrumbs = true;
+  data.fromUrl = true;
+
+  // Aplica o filtro (se houver)
+  if (pref) {
+    data.filter = "sys_class_name=" + pref;
+    console.log("Filtro aplicado: '" + data.filter + "'");
+  } else {
+    data.filter = ""; 
+  }
+
+  data.useInstanceTitle = (options.use_instance_title == "true");
+  data.headerTitle = data.useInstanceTitle ? options.title : gr.getPlural();
+  data.enable_filter = input && input.enable_filter || options.enable_filter == true || options.enable_filter == "true";
+
+  // Renderiza o widget de data table
+  data.dataTableWidget = $sp.getWidget('widget-data-table', data);
+
+  function copyParameters(to, names) {
+    names.forEach(function(name) {
+      data[name] = $sp.getParameter(name);
+    });
+  }
+
+  function deleteOptions(names) {
+    names.forEach(function(name) {
+      delete options[name];
+    });
+  }
+})();]]></script>
+<servicenow>false</servicenow>
+<sys_class_name>sp_widget</sys_class_name>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2025-11-07 21:43:14</sys_created_on>
+<sys_id>1a99910a930532104a9cf1965d03d649</sys_id>
+<sys_mod_count>17</sys_mod_count>
+<sys_name>CMDB Data Table From URL</sys_name>
+<sys_package display_value="Global" source="global">global</sys_package>
+<sys_policy/>
+<sys_scope display_value="Global">global</sys_scope>
+<sys_update_name>sp_widget_1a99910a930532104a9cf1965d03d649</sys_update_name>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2025-11-24 16:30:35</sys_updated_on>
+<template><![CDATA[<div>
+  <div ng-if="data.invalid_table">
+    <div class="alert alert-info">
+      <span ng-if="data.table_label">${Table not defined} '{{data.table_label}}'</span>
+      <span ng-if="!data.table_label">${Select table on field below or specify on URL} ?id=list&amp;table=table_name </span>
+    </div>
+    <sn-record-picker field="selectedTable" table="'sys_db_object'"
+                      display-field="'label'"
+                      value-field="'name'"
+                      display-fields="'name'"
+                      search-fields="'label,name'" page-size="100" on-change="onChange()" ></sn-record-picker>
+  </div>
+  <div ng-if="data.dataTableWidget && !data.invalid_table">
+  	<sp-widget widget="data.dataTableWidget"></sp-widget>
+  </div>
+</div>]]></template>
+</sp_widget>
+</unload>

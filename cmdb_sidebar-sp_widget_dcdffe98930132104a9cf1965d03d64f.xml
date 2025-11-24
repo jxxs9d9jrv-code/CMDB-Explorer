@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<unload unload_date="2025-11-24 17:58:09">
+<sp_widget action="INSERT_OR_UPDATE">
+<category>custom</category>
+<client_script><![CDATA[api.controller = function($scope, $rootScope) {
+    var c = this;
+    
+    var VIEW_CONFIG = {
+        servers: {
+            table: 'cmdb_ci_server',
+            iframeUrl: '/sp?id=cmdb_servers_page'
+        },
+        network: {
+            table: 'cmdb_ci_netgear',
+            iframeUrl: '/sp?id=cmdb_network'
+        }
+    };
+
+    c.currentView = 'servers';
+
+    c.changeView = function(viewName) {
+        if (c.currentView === viewName || !VIEW_CONFIG[viewName]) {
+            return;
+        }
+
+        c.currentView = viewName;
+        var config = VIEW_CONFIG[viewName];
+        
+        _saveTablePreference(config.table);
+        $rootScope.$emit('cmdb.view.changed', {
+            view: viewName,
+            iframeUrl: config.iframeUrl
+        });
+    };
+
+    function _saveTablePreference(tableName) {
+        try {
+            var ga = new GlideAjax('global.PortalFilterPrefs');
+            ga.addParam('sysparm_name', 'saveTable');
+            ga.addParam('sysparm_table', tableName);
+            
+            var timeout = setTimeout(function() {
+                console.warn('GlideAjax timeout:', tableName);
+            }, 5000);
+            
+            ga.getXMLAnswer(function(response) {
+                clearTimeout(timeout);
+                
+                if (response === 'ok') {
+                    console.log('Preferência salva:', tableName);
+                } else {
+                    console.error('Erro ao salvar preferência:', response);
+                }
+            });
+        } catch (error) {
+            console.error('GlideAjax error:', error.message);
+        }
+    }
+
+    c.$onInit = function() {
+				_saveTablePreference('cmdb_ci_server');
+        c.changeView('servers');
+    };
+};]]></client_script>
+<controller_as>c</controller_as>
+<css>.cmdb-sidebar {
+    height: 100vh;
+    width: 250px;
+    background: #2c3e50;
+    color: white;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    padding: 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-header {
+    padding: 20px;
+    background: #1a252f;
+    border-bottom: 1px solid #34495e;
+}
+
+.sidebar-header h5 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 18px;
+}
+
+.sidebar-header i {
+    color: #3498db;
+}
+
+.sidebar-menu {
+    padding: 15px 0;
+}
+
+.menu-item {
+    width: 100%;
+    padding: 12px 20px;
+    border: none;
+    background: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+    font-size: 14px;
+}
+
+.menu-item i {
+    width: 20px;
+    text-align: center;
+}
+
+.menu-item:hover,
+.menu-item:focus-visible {
+    background: #34495e;
+    border-left-color: #3498db;
+}
+
+.menu-item.active {
+    background: #3498db;
+    border-left-color: #2980b9;
+}
+
+@media (max-width: 768px) {
+    .cmdb-sidebar {
+        width: 200px;
+    }
+
+    .sidebar-header {
+        padding: 15px;
+    }
+
+    .menu-item {
+        padding: 10px 15px;
+    }
+}</css>
+<data_table>sp_instance</data_table>
+<demo_data/>
+<description/>
+<docs display_value=""/>
+<field_list/>
+<has_preview>false</has_preview>
+<id>cmdb_sidebar</id>
+<internal>false</internal>
+<link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+<name>CMDB Sidebar</name>
+<option_schema/>
+<public>false</public>
+<roles/>
+<script><![CDATA[(function() {
+
+})();]]></script>
+<servicenow>false</servicenow>
+<sys_class_name>sp_widget</sys_class_name>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2025-11-02 18:43:37</sys_created_on>
+<sys_id>dcdffe98930132104a9cf1965d03d64f</sys_id>
+<sys_mod_count>28</sys_mod_count>
+<sys_name>CMDB Sidebar</sys_name>
+<sys_package display_value="Global" source="global">global</sys_package>
+<sys_policy/>
+<sys_scope display_value="Global">global</sys_scope>
+<sys_update_name>sp_widget_dcdffe98930132104a9cf1965d03d64f</sys_update_name>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2025-11-24 17:46:00</sys_updated_on>
+<template><![CDATA[<div class="cmdb-sidebar">
+    <div class="sidebar-header">
+        <h5>
+            <i class="fa fa-database"></i>
+            <span>${CMDB Explorer}</span>
+        </h5>
+    </div>
+    
+    <nav class="sidebar-menu" aria-label="${CMDB Navigation}">
+        <button class="menu-item"
+                ng-class="{'active': c.currentView === 'servers'}"
+                ng-click="c.changeView('servers')"
+                aria-label="${Servers Management}"
+                aria-pressed="{{c.currentView === 'servers'}}">
+            <i class="fa fa-server" aria-hidden="true"></i>
+            <span>${Servers}</span>
+        </button>
+        
+        <button class="menu-item"
+                ng-class="{'active': c.currentView === 'network'}"
+                ng-click="c.changeView('network')"
+                aria-label="${Network Devices Management}"
+                aria-pressed="{{c.currentView === 'network'}}">
+            <i class="fa fa-sitemap" aria-hidden="true"></i>
+            <span>${Network}</span>
+        </button>
+    </nav>
+</div>]]></template>
+</sp_widget>
+</unload>
