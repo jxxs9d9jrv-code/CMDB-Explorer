@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<unload unload_date="2025-11-24 17:52:48">
+<sys_script_include action="INSERT_OR_UPDATE">
+<access>public</access>
+<active>true</active>
+<api_name>global.PortalFilterPrefs</api_name>
+<caller_access/>
+<client_callable>true</client_callable>
+<description>Controla chamadas para captura de dados.</description>
+<mobile_callable>false</mobile_callable>
+<name>PortalFilterPrefs</name>
+<sandbox_callable>false</sandbox_callable>
+<script><![CDATA[var PortalFilterPrefs = Class.create();
+PortalFilterPrefs.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+    PREFERENCE_KEY_VIEW: 'cmdb_current_view',
+    PREFERENCE_KEY_FILTER: 'cmdb_server_filter',
+    PREFERENCE_KEY_TABLE: 'cmdb_target_table' ,
+
+    saveView: function() {
+        var view = this.getParameter('sysparm_view');
+        
+        if (!view) {
+            return 'error: empty view';
+        }
+
+        gs.getUser().savePreference(this.PREFERENCE_KEY_VIEW, view);
+        return 'ok';
+    },
+
+    getView: function() {
+        var view = gs.getUser().getPreference(this.PREFERENCE_KEY_VIEW) || 'servers';
+        return view;
+    },
+
+    saveFilter: function() {
+        var filterValue = this.getParameter('sysparm_filter');
+        if (!filterValue) {
+            return 'error: empty filter';
+        }
+
+        gs.getUser().savePreference(this.PREFERENCE_KEY_FILTER, filterValue);
+        return 'ok';
+    },
+
+    saveTable: function() {
+        var tableValue = this.getParameter('sysparm_table');
+        if (!tableValue) {
+            return 'error: empty table';
+        }
+
+        gs.getUser().savePreference(this.PREFERENCE_KEY_TABLE, tableValue);
+        return 'ok';
+    }
+});]]></script>
+<sys_class_name>sys_script_include</sys_class_name>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2025-11-10 00:10:00</sys_created_on>
+<sys_id>ca2e007e93c9f2104a9cf1965d03d6c3</sys_id>
+<sys_mod_count>13</sys_mod_count>
+<sys_name>PortalFilterPrefs</sys_name>
+<sys_package display_value="Global" source="global">global</sys_package>
+<sys_policy/>
+<sys_scope display_value="Global">global</sys_scope>
+<sys_update_name>sys_script_include_ca2e007e93c9f2104a9cf1965d03d6c3</sys_update_name>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2025-11-24 17:52:13</sys_updated_on>
+</sys_script_include>
+</unload>
