@@ -19,7 +19,11 @@ O CMDB Explorer oferece uma solução integrada para visualizar servidores, disp
 ```
 cmdb-explorer/
 ├── README.md
-├── src/
+├── Pages/
+│   │   ├── cmdb_portal_index/
+│   │      ├── widgets
+│   │      │── cmdb_pageview/
+│   │      ├── cmdb_sidebar/
 │   ├── widgets/
 │   │   ├── cmdb_sidebar/
 │   │   ├── cmdb_servers/
