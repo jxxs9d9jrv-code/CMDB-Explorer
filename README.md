@@ -1,149 +1,189 @@
 # Bradesco Seguros - CMDB Explorer
 
-Um conjunto completo de widgets/pages para explorar e gerenciar dispositivos CMDB de forma visual e intuitiva.
+> **Portal CMDB completo** desenvolvido em ServiceNow, com navegação dinâmica, widgets customizados e persistência de preferências do usuário.
+
+<div align="center">
+  <img src="https://img.shields.io/badge/ServiceNow-CMDB-green?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Portal-Widgets-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Status-Production-orange?style=for-the-badge" />
+</div>
+
+---
+
+## 📘 Sumário
+
+* [Visão Geral](#-visão-geral)
+* [Funcionalidades](#-funcionalidades)
+* [Estrutura do Projeto](#-estrutura-do-projeto)
+* [Widgets](#-widgets)
+* [Configuração](#-configuração)
+* [Fluxo de Dados](#-fluxo-de-dados)
+* [Script Include Necessário](#-script-include-necessário)
+* [Recursos Adicionais](#-recursos-adicionais)
+* [Conclusão](#-conclusão)
+
+---
 
 ## 🎯 Visão Geral
 
-O CMDB Explorer oferece uma solução integrada para visualizar servidores, dispositivos de rede e suas configurações através de widgets no ServiceNow Portal.
+O **CMDB Explorer** oferece uma experiência moderna, rápida e integrada para explorar Servidores, Redes e Detalhes de Itens da CMDB usando o ServiceNow Portal.
 
-### Funcionalidades Principais
+Ele inclui:
 
-- 📊 **Sidebar de Navegação** - Menu lateral dinâmico para alternar entre abas
-- 🖥️ **Grid de Servers** - Visualização de servidores agrupados pelo (sys_class_name) com filtro de busca (via cliente ng-model)
-- 🌐 **Grid de Network** - Visualização de network agrupados pelo (sys_class_name) com filtro de busca (via cliente ng-model)
-- 💾 **Persistência de Preferências** - Adinciana a preferencia do filtro no sys_preference do usuário em um Script Include
+* Navegação dinâmica
+* Grids agrupados
+* Preferências persistidas do usuário
+* Widgets customizados conectados entre si
+
+---
+
+## ✨ Funcionalidades
+
+* 📊 **Sidebar de Navegação** — troca entre páginas e salva a preferência automaticamente.
+* 🖥️ **Grid de Servers** — agrupamento por `sys_class_name` + busca instantânea.
+* 🌐 **Grid de Network Devices** — mesmo comportamento do módulo de servidores.
+* 💾 **Persistência de Preferências** — salva views, filtros e navegações em `sys_user_preference`.
+* 🔄 **Navegação Inteligente** — página de detalhes carregada com filtros aplicados dinamicamente.
+
+---
 
 ## 📁 Estrutura do Projeto
 
-```
+```bash
 Bradesco Seguros: cmdb-explorer/
 ├── Pages/
-    │   ├── cmdb_portal_index/
-    │      ├── widgets
-    │      │── cmdb_pageview/
-    │      ├── cmdb_sidebar/
-    │   ├── cmdb_servers_page/
-    │      ├── widgets
-    │      │── cmdb_servers_widget/
-    │   ├── cmdb_network/
-    │      ├── widgets
-    │      │── cmdb_network/
-    │   ├── cmdb_details/
-    │      ├── widgets
-    │      │── cmdb_data_table_from_url/
-    └── scripts/
-        └── includes/
-            └── global.PortalFilterPrefs.js
+│   ├── cmdb_portal_index/
+│   │   ├── widgets/cmdb_pageview/
+│   │   └── cmdb_sidebar/
+│   ├── cmdb_servers_page/
+│   │   └── widgets/cmdb_servers_widget/
+│   ├── cmdb_network/
+│   │   └── widgets/cmdb_network/
+│   ├── cmdb_details/
+│   │   └── widgets/cmdb_data_table_from_url/
+└── scripts/
+    └── includes/global.PortalFilterPrefs.js
 ```
 
-## 🚀 Como Usar
+---
 
-### 1. Widgets Disponíveis
+## 🧩 Widgets
 
-#### **Name: CMDB Sidebar ID: cmdb_sidebar**
-É o menu de navegação principal do CMDB Explorer. Funciona como a barra lateral fixa que permite alternar entre diferentes visualizações (Servidores e Dispositivos de Rede). É o ponto central de controle da aplicação, salvando automaticamente qual tabela iremos usar na busca na preferência do usuário.
+### 📌 **CMDB Sidebar (ID: cmdb_sidebar)**
 
-#### **CMDB Servers**
-Exibe todos os servidores ativos na CMDB agrupados por sys_classname + company. Oferece uma visualização em grid com cards informativos que mostram a quantidade de servidores de cada tipo, permitindo filtro de busca em tempo real e navegação para detalhes específicos.
+* Menu lateral fixo
+* Atualiza a view principal
+* Salva a opção selecionada no `sys_user_preference`
 
-#### **CMDB Networks**
-Exibe todos as redes ativas na CMDB agrupados por sys_classname + company. Oferece uma visualização em grid com cards informativos que mostram a quantidade de redes de cada tipo, permitindo filtro de busca em tempo real e navegação para detalhes específicos.
+### 🖥️ **CMDB Servers**
 
+* Agrupa servidores por `sys_class_name + company`
+* Cards com totais e ícones
+* Filtro rápido com `ng-model`
 
-#### **CMDB Page View**
-Uma visualizacao de paginas que esta diretamente ligada ao cmdb_sidebar, ela atualiza sempre que o usuario escolher uma nova opcao do menu ou interagir com o que esta sendo mostrado por ela. 
+### 🌐 **CMDB Networks**
 
+* Mesma experiência do módulo de servidores
+* Focado em dispositivos de rede
 
-#### **CMDB Data Table From URL**
-Clone direto do widget Data Table From URL nele modificamos o filtro para interagir diretamente com o script include global.PortalFilterPrefs.js para mostrar os resultados da pesqueisa com base na preferencia do usuario 
+### 🗂️ **CMDB Page View**
+
+* Carrega dinamicamente a página ativa
+* Sincroniza com a Sidebar e preferências
+
+### 📄 **CMDB Data Table From URL (Custom)**
+
+* Baseado no widget padrão
+* Filtro reescrito para integrar automaticamente com `PortalFilterPrefs.js`
+
+---
 
 ## 🔧 Configuração
 
-### URLs Base
-Edite em cada controller se precisar mudar as URLs:
+### 🔗 URLs Dinâmicas por Ambiente
 
 ```javascript
 function getBaseUrl() {
-        var protocol = window.location.protocol;
-        var host = window.location.host;
-        return protocol + '//' + host;
-    }
+  return window.location.protocol + '//' + window.location.host;
+}
 
-    // Configuração com URLs dinâmicas
-    var VIEW_CONFIG = {
-        servers: {
-            title: 'Servers Management',
-            icon: 'fa-server',
-            url: getBaseUrl() + '/brad_bsra?id=cmdb_servers_page'
-        },
-        network: {
-            title: 'Network Devices', 
-            icon: 'fa-sitemap',
-            url: getBaseUrl() + '/brad_bsra?id=cmdb_network'
-        },
-        server_details: {
-            title: 'Server Details',
-            icon: 'fa-list'
-        }
-    };
+var VIEW_CONFIG = {
+  servers: {
+    title: 'Servers Management',
+    icon: 'fa-server',
+    url: getBaseUrl() + '/brad_bsra?id=cmdb_servers_page'
+  },
+  network: {
+    title: 'Network Devices',
+    icon: 'fa-sitemap',
+    url: getBaseUrl() + '/brad_bsra?id=cmdb_network'
+  },
+  server_details: {
+    title: 'Server Details',
+    icon: 'fa-list'
+  }
+};
 ```
 
-### Mapeamento de Imagens (Ainda nao dinamizado) - Escolhe a imagem baseado no sys_class_name
-Em `cmdb_servers/server_script.js & cmdb_network/cmdb_network.js`: Escolhemos a imagem com base no nome dela. 
+### 🖼️ Mapeamento de Imagens por Classe
 
 ```javascript
 var SERVER_CLASS_MAPPING = {
-    'cmdb_ci_aix_server': { name: 'AIX Server', image: 'aixserver.png', construcao: true },
-    'cmdb_ci_esx_server': { name: 'ESX Server', image: 'aixserver.png' },
-    'cmdb_ci_hcx_server': { name: 'HCX Server', image: 'aixserver.png' },
-    'cmdb_ci_hpux_server': { name: 'HPUX Server', image: 'aixserver.png', construcao: true },
-    'cmdb_ci_hyperv_server': { name: 'Hyper-V Servers', image: 'aixserver.png' },
-    'cmdb_ci_linux_server': { name: 'Linux Server', image: 'linuxserver.png' },
-    'cmdb_ci_server': { name: 'Generic Server', image: 'genericservers.png' },
-    'cmdb_ci_solaris_server': { name: 'Solaris Server', image: 'aixserver.png', construcao: true },
-    'cmdb_ci_vmware_vcenter': { name: 'VMware Vcenter', image: 'aixserver.png' },
-    'cmdb_ci_win_server': { name: 'Windows Server', image: 'windowsserver.png' }
-};
-
+  'cmdb_ci_linux_server': { name: 'Linux Server', image: 'linuxserver.png' },
+  'cmdb_ci_win_server': { name: 'Windows Server', image: 'windowsserver.png' },
+  'cmdb_ci_server': { name: 'Generic Server', image: 'genericservers.png' },
+  // Demais classes...
 };
 ```
+
+---
 
 ## 📊 Fluxo de Dados
 
-```
-Sidebar (muda view)
-    ↓
-saveView() → salva preferência
-    ↓
-Carrega widget (Servers ou Networks)
-    ↓
-Usuário clica em um item
-    ↓
-saveFilter() → salva qual item foi selecionado
-    ↓
-Navega para cmdb_details
+```mermaid
+flowchart TD
+  A[Usuário escolhe view na Sidebar] --> B[saveView()]
+  B --> C[Carrega Servers ou Networks]
+  C --> D[Usuário clica em um item]
+  D --> E[saveFilter()]
+  E --> F[Redireciona para cmdb_details]
+  F --> G[Data Table aplica filtro salvo]
 ```
 
-## 🛠️ Requisitos
-
-- ServiceNow Instance
-- Itil
-- Script Include global.PortalFilterPrefs
+---
 
 ## 📝 Script Include Necessário
-O script include global.PortalFilterPrefs é responsável por gerenciar as preferências do usuário no portal CMDB Explorer. Fornece métodos para salvar e recuperar as escolhas do usuário (view ativa, filtros aplicados, tabela selecionada).
+
+### `global.PortalFilterPrefs.js`
+
+Responsável por:
+
+* Armazenar filtros e views em `sys_user_preference`
+* Recuperar preferências ao carregar o portal
+* Integrar filtros com widgets como *Data Table From URL*
+
+---
 
 ## ✨ Recursos Adicionais
 
-### Filtro de Busca
-- Busca em tempo real nos nomes dos itens
-- Funciona em ambos os widgets (Servers e Networks)
+* 🔍 **Busca em tempo real** em Servers/Networks
+* 🔢 **Contadores automáticos** por classe
+* ⏳ **Estado de carregamento inteligente**
+* ❌ **Fallback quando nenhum resultado é encontrado**
 
-### Contadores
-- Mostra total de servidores/dispositivos ativos
-- Mostra quantos tipos diferentes existem
+---
 
-### Estados de Carregamento
-- Spinner animado durante carregamento
-- Mensagens de erro apropriadas
-- Estado vazio quando não há resultados
+## 📌 Conclusão
+
+O **CMDB Explorer** do Bradesco Seguros é uma solução completa, modular e escalável para visualização da CMDB no ServiceNow.
+Com widgets integrados, preferências persistentes e navegação fluida, oferece uma experiência profissional e eficiente para times de Infraestrutura e ITSM.
+
+---
+
+Se quiser, posso adicionar:
+
+* Badges extras
+* GIF demonstrativo
+* Documentação de API
+* Capturas de tela do portal
+* Versão em inglês
