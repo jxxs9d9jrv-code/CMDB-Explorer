@@ -17,18 +17,21 @@ O CMDB Explorer oferece uma solução integrada para visualizar servidores, disp
 ## 📁 Estrutura do Projeto
 
 ```
-cmdb-explorer/
-├── README.md
+Bradesco Seguros: cmdb-explorer/
 ├── Pages/
 │   │   ├── cmdb_portal_index/
 │   │      ├── widgets
 │   │      │── cmdb_pageview/
 │   │      ├── cmdb_sidebar/
-│   ├── widgets/
-│   │   ├── cmdb_sidebar/
-│   │   ├── cmdb_servers/
-│   │   ├── cmdb_networks/
-│   │   └── cmdb_back_button/
+│   │   ├── cmdb_servers_page/
+│   │      ├── widgets
+│   │      │── cmdb_servers_widget/
+│   │   ├── cmdb_network/
+│   │      ├── widgets
+│   │      │── cmdb_network/
+│   │   ├── cmdb_details/
+│   │      ├── widgets
+│   │      │── cmdb_data_table_from_url/
 │   └── scripts/
 │       └── includes/
 │           └── global.PortalFilterPrefs.js
