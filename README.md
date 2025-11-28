@@ -1,4 +1,4 @@
-# Bradesco Seguros - CMDB Explorer
+# CMDB Explorer
 
 Um conjunto completo de widgets/pages para explorar e gerenciar dispositivos CMDB de forma visual e intuitiva.
 
@@ -16,7 +16,7 @@ O CMDB Explorer oferece uma solução integrada para visualizar servidores, disp
 ## Estrutura do Projeto
 
 ```
-Bradesco Seguros: cmdb-explorer/
+Bradesco Seguros: brad_bsra/
 ├── Pages/
     │   ├── cmdb_portal_index/
     │      ├── widgets
@@ -43,24 +43,24 @@ Bradesco Seguros: cmdb-explorer/
 #### **Name: CMDB Sidebar ID: cmdb_sidebar**
 É o menu de navegação principal do CMDB Explorer. Funciona como a barra lateral fixa que permite alternar entre diferentes visualizações (Servidores e Dispositivos de Rede). É o ponto central de controle da aplicação, salvando automaticamente qual tabela iremos usar na busca na preferência do usuário.
 
-#### **CMDB Servers**
+#### **Name: CMDB Servers ID: cmdb_server_widget**
 Exibe todos os servidores ativos na CMDB agrupados por sys_classname + company. Oferece uma visualização em grid com cards informativos que mostram a quantidade de servidores de cada tipo, permitindo filtro de busca em tempo real e navegação para detalhes específicos.
 
-#### **CMDB Networks**
+#### **Name: CMDB Networks ID: cmdb_network**
 Exibe todos as redes ativas na CMDB agrupados por sys_classname + company. Oferece uma visualização em grid com cards informativos que mostram a quantidade de redes de cada tipo, permitindo filtro de busca em tempo real e navegação para detalhes específicos.
 
 
-#### **CMDB Page View**
+#### **Name: CMDB Page View ID:cmdb_page_view **
 Uma visualizacao de paginas que esta diretamente ligada ao cmdb_sidebar, ela atualiza sempre que o usuario escolher uma nova opcao do menu ou interagir com o que esta sendo mostrado por ela. 
 
 
-#### **CMDB Data Table From URL**
+#### **Name: CMDB Data Table From URL ID: cmdb_data_table_url**
 Clone direto do widget Data Table From URL nele modificamos o filtro para interagir diretamente com o script include global.PortalFilterPrefs.js para mostrar os resultados da pesqueisa com base na preferencia do usuario 
 
 ## 🔧 Configuração
 
 ### URLs Base
-Edite em cada controller se precisar mudar as URLs:
+Edite em cada controller se precisar mudar as URLs CMDB Page View - id: cmdb_page_view:
 
 ```javascript
 function getBaseUrl() {
@@ -125,7 +125,6 @@ Navega para cmdb_details
 ```
 
 ## Requisitos
-
 - ServiceNow Instance
 - Itil
 - Script Include global.PortalFilterPrefs
