@@ -16,7 +16,7 @@ O CMDB Explorer oferece uma solução integrada para visualizar servidores, disp
 ## Estrutura do Projeto
 
 ```
-Bradesco Seguros: brad_bsra/
+Portal: brad_bsra/
 ├── Pages/
     │   ├── cmdb_portal_index/
     │      ├── widgets
@@ -40,27 +40,27 @@ Bradesco Seguros: brad_bsra/
 
 ### 1. Widgets Disponíveis
 
-#### **Name: CMDB Sidebar ID: cmdb_sidebar**
-É o menu de navegação principal do CMDB Explorer. Funciona como a barra lateral fixa que permite alternar entre diferentes visualizações (Servidores e Dispositivos de Rede). É o ponto central de controle da aplicação, salvando automaticamente qual tabela iremos usar na busca na preferência do usuário.
+#### **Name: CMDB Sidebar | ID: cmdb_sidebar**
+É o menu de navegação principal do CMDB Explorer. Funciona como a barra lateral fixa que permite alternar entre diferentes visualizações (Servidores e Dispositivos de Rede). É o ponto central de controle da aplicação, salvando automaticamente qual tabela iremos usar no **cmdb_data_table_from_url** na preferência do usuário.
 
-#### **Name: CMDB Servers ID: cmdb_server_widget**
-Exibe todos os servidores ativos na CMDB agrupados por sys_classname + company. Oferece uma visualização em grid com cards informativos que mostram a quantidade de servidores de cada tipo, permitindo filtro de busca em tempo real e navegação para detalhes específicos.
+#### **Name: CMDB Servers | ID: cmdb_server_widget**
+Exibe todos os servidores ativos na CMDB agrupados por **sys_classname + company**. Oferece uma visualização em grid com cards informativos que mostram a quantidade de servidores de cada tipo, permitindo filtro de busca em tempo real e navegação para detalhes.
 
-#### **Name: CMDB Networks ID: cmdb_network**
-Exibe todos as redes ativas na CMDB agrupados por sys_classname + company. Oferece uma visualização em grid com cards informativos que mostram a quantidade de redes de cada tipo, permitindo filtro de busca em tempo real e navegação para detalhes específicos.
+#### **Name: CMDB Networks | ID: cmdb_network**
+Exibe todos as redes ativas na CMDB agrupados por **sys_classname + company**. Oferece uma visualização em grid com cards informativos que mostram a quantidade de redes de cada tipo, permitindo filtro de busca em tempo real e navegação para detalhes.
 
 
-#### **Name: CMDB Page View ID:cmdb_page_view **
-Uma visualizacao de paginas que esta diretamente ligada ao cmdb_sidebar, ela atualiza sempre que o usuario escolher uma nova opcao do menu ou interagir com o que esta sendo mostrado por ela. 
+#### **Name: CMDB Page View | ID:cmdb_page_view **
+Uma visualizacao de paginas que esta diretamente ligada ao **cmdb_sidebar**, ela atualiza sempre que o usuario escolher uma nova opcao do menu ou interagir com o que esta sendo mostrado por ela. 
 
 
 #### **Name: CMDB Data Table From URL ID: cmdb_data_table_url**
-Clone direto do widget Data Table From URL nele modificamos o filtro para interagir diretamente com o script include global.PortalFilterPrefs.js para mostrar os resultados da pesqueisa com base na preferencia do usuario 
+Clone direto do widget Data Table From URL nele modificamos o filtro para interagir diretamente com o *script include* **global.PortalFilterPrefs.js** para mostrar os resultados da pesqueisa com base na preferencia do usuario 
 
 ## 🔧 Configuração
 
 ### URLs Base
-Edite em cada controller se precisar mudar as URLs CMDB Page View - id: cmdb_page_view:
+Edite em cada controller se precisar mudar as URLs **CMDB Page View - id: cmdb_page_view**:
 
 ```javascript
 function getBaseUrl() {
@@ -89,7 +89,7 @@ function getBaseUrl() {
 ```
 
 ### Mapeamento de Imagens (Ainda nao dinamizado) - Escolhe a imagem baseado no sys_class_name
-Em `cmdb_servers/server_script.js & cmdb_network/cmdb_network.js`: Escolhemos a imagem com base no nome dela. 
+Em **`cmdb_servers/server_script.js & cmdb_network/cmdb_network.js`**: Escolhemos a imagem com base no nome dela. 
 
 ```javascript
 var SERVER_CLASS_MAPPING = {
@@ -130,7 +130,7 @@ Navega para cmdb_details
 - Script Include global.PortalFilterPrefs
 
 ## Script Include Necessário
-O script include global.PortalFilterPrefs é responsável por gerenciar as preferências do usuário no portal CMDB Explorer. Fornece métodos para salvar e recuperar as escolhas do usuário (view ativa, filtros aplicados, tabela selecionada).
+O script include **global.PortalFilterPrefs** é responsável por gerenciar as preferências do usuário no portal. Fornece métodos para salvar e recuperar as escolhas do usuário (view ativa, filtros aplicados, tabela selecionada).
 
 ## Recursos Adicionais
 
