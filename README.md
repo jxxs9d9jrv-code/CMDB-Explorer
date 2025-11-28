@@ -2,18 +2,18 @@
 
 Um conjunto completo de widgets/pages para explorar e gerenciar dispositivos CMDB de forma visual e intuitiva.
 
-## 🎯 Visão Geral
+##  Visão Geral
 
 O CMDB Explorer oferece uma solução integrada para visualizar servidores, dispositivos de rede e suas configurações através de widgets no ServiceNow Portal.
 
 ### Funcionalidades Principais
 
-- 📊 **Sidebar de Navegação** - Menu lateral dinâmico para alternar entre abas
-- 🖥️ **Grid de Servers** - Visualização de servidores agrupados pelo (sys_class_name) com filtro de busca (via cliente ng-model)
-- 🌐 **Grid de Network** - Visualização de network agrupados pelo (sys_class_name) com filtro de busca (via cliente ng-model)
-- 💾 **Persistência de Preferências** - Adinciana a preferencia do filtro no sys_preference do usuário em um Script Include
+- **Sidebar de Navegação** - Menu lateral dinâmico para alternar entre abas
+- **Grid de Servers** - Visualização de servidores agrupados pelo (sys_class_name) com filtro de busca (via cliente ng-model)
+- **Grid de Network** - Visualização de network agrupados pelo (sys_class_name) com filtro de busca (via cliente ng-model)
+- **Persistência de Preferências** - Adinciana a preferencia do filtro no sys_preference do usuário em um Script Include
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 Bradesco Seguros: cmdb-explorer/
@@ -36,7 +36,7 @@ Bradesco Seguros: cmdb-explorer/
             └── global.PortalFilterPrefs.js
 ```
 
-## 🚀 Como Usar
+## Como Usar
 
 ### 1. Widgets Disponíveis
 
@@ -108,7 +108,7 @@ var SERVER_CLASS_MAPPING = {
 };
 ```
 
-## 📊 Fluxo de Dados
+## Fluxo de Dados
 
 ```
 Sidebar (muda view)
@@ -124,16 +124,16 @@ saveFilter() → salva qual item foi selecionado
 Navega para cmdb_details
 ```
 
-## 🛠️ Requisitos
+## Requisitos
 
 - ServiceNow Instance
 - Itil
 - Script Include global.PortalFilterPrefs
 
-## 📝 Script Include Necessário
+## Script Include Necessário
 O script include global.PortalFilterPrefs é responsável por gerenciar as preferências do usuário no portal CMDB Explorer. Fornece métodos para salvar e recuperar as escolhas do usuário (view ativa, filtros aplicados, tabela selecionada).
 
-## ✨ Recursos Adicionais
+## Recursos Adicionais
 
 ### Filtro de Busca
 - Busca em tempo real nos nomes dos itens
