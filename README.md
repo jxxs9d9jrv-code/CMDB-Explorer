@@ -1,6 +1,6 @@
-# CMDB Explorer
+# Bradesco Seguros - CMDB Explorer
 
-Um conjunto completo de widgets ServiceNow para explorar e gerenciar dispositivos CMDB de forma visual e intuitiva.
+Um conjunto completo de widgets/pages para explorar e gerenciar dispositivos CMDB de forma visual e intuitiva.
 
 ## 🎯 Visão Geral
 
@@ -9,57 +9,53 @@ O CMDB Explorer oferece uma solução integrada para visualizar servidores, disp
 ### Funcionalidades Principais
 
 - 📊 **Sidebar de Navegação** - Menu lateral dinâmico para alternar entre abas
-- 🖥️ **Grid de Servidores** - Visualização de servidores por tipo com filtro de busca
-- 🌐 **Grid de Redes** - Visualização de dispositivos de rede com filtro de busca
-- ⬅️ **Botão Voltar Inteligente** - Retorna à página correta (Servers ou Networks)
-- 💾 **Persistência de Preferências** - Salva a view escolhida pelo usuário
+- 🖥️ **Grid de Servers** - Visualização de servidores agrupados pelo (sys_class_name) com filtro de busca (via cliente ng-model)
+- 🌐 **Grid de Network** - Visualização de network agrupados pelo (sys_class_name) com filtro de busca (via cliente ng-model)
+- 💾 **Persistência de Preferências** - Adinciana a preferencia do filtro no sys_preference do usuário em um Script Include
 
 ## 📁 Estrutura do Projeto
 
 ```
 Bradesco Seguros: cmdb-explorer/
 ├── Pages/
-│   │   ├── cmdb_portal_index/
-│   │      ├── widgets
-│   │      │── cmdb_pageview/
-│   │      ├── cmdb_sidebar/
-│   │   ├── cmdb_servers_page/
-│   │      ├── widgets
-│   │      │── cmdb_servers_widget/
-│   │   ├── cmdb_network/
-│   │      ├── widgets
-│   │      │── cmdb_network/
-│   │   ├── cmdb_details/
-│   │      ├── widgets
-│   │      │── cmdb_data_table_from_url/
-│   └── scripts/
-│       └── includes/
-│           └── global.PortalFilterPrefs.js
+    │   ├── cmdb_portal_index/
+    │      ├── widgets
+    │      │── cmdb_pageview/
+    │      ├── cmdb_sidebar/
+    │   ├── cmdb_servers_page/
+    │      ├── widgets
+    │      │── cmdb_servers_widget/
+    │   ├── cmdb_network/
+    │      ├── widgets
+    │      │── cmdb_network/
+    │   ├── cmdb_details/
+    │      ├── widgets
+    │      │── cmdb_data_table_from_url/
+    └── scripts/
+        └── includes/
+            └── global.PortalFilterPrefs.js
 ```
 
 ## 🚀 Como Usar
 
 ### 1. Widgets Disponíveis
 
-#### **CMDB Sidebar**
-Menu principal com navegação entre abas. Salva automaticamente qual abinha o usuário escolheu.
+#### **Name: CMDB Sidebar ID: cmdb_sidebar**
+É o menu de navegação principal do CMDB Explorer. Funciona como a barra lateral fixa que permite alternar entre diferentes visualizações (Servidores e Dispositivos de Rede). É o ponto central de controle da aplicação, salvando automaticamente qual tabela iremos usar na busca na preferência do usuário.
 
 #### **CMDB Servers**
-- Exibe todos os servidores ativos na CMDB
-- Agrupa por tipo (Linux, Windows, ESX, etc)
-- Filtro de busca em tempo real
-- Clique em um servidor para ver detalhes
+Exibe todos os servidores ativos na CMDB agrupados por sys_classname + company. Oferece uma visualização em grid com cards informativos que mostram a quantidade de servidores de cada tipo, permitindo filtro de busca em tempo real e navegação para detalhes específicos.
 
 #### **CMDB Networks**
-- Exibe todos os dispositivos de rede ativos
-- Agrupa por tipo (Firewall, Switch, Router, etc)
-- Filtro de busca em tempo real
-- Clique em um dispositivo para ver detalhes
+Exibe todos as redes ativas na CMDB agrupados por sys_classname + company. Oferece uma visualização em grid com cards informativos que mostram a quantidade de redes de cada tipo, permitindo filtro de busca em tempo real e navegação para detalhes específicos.
 
-#### **CMDB Back Button** (em construcao)
-- Botão dinâmico que volta para a página correta
-- Se veio de Servers, volta para Servers
-- Se veio de Networks, volta para Networks
+
+#### **CMDB Page View**
+Uma visualizacao de paginas que esta diretamente ligada ao cmdb_sidebar, ela atualiza sempre que o usuario escolher uma nova opcao do menu ou interagir com o que esta sendo mostrado por ela. 
+
+
+#### **CMDB Data Table From URL**
+Clone direto do widget Data Table From URL nele modificamos o filtro para interagir diretamente com o script include global.PortalFilterPrefs.js para mostrar os resultados da pesqueisa com base na preferencia do usuario 
 
 ## 🔧 Configuração
 
@@ -67,31 +63,48 @@ Menu principal com navegação entre abas. Salva automaticamente qual abinha o u
 Edite em cada controller se precisar mudar as URLs:
 
 ```javascript
-var CONFIG = {
-    detailsUrl: 'https://dev357601.service-now.com/sp?id=cmdb_details',
-    ajaxClass: 'global.PortalFilterPrefs'
-};
+function getBaseUrl() {
+        var protocol = window.location.protocol;
+        var host = window.location.host;
+        return protocol + '//' + host;
+    }
+
+    // Configuração com URLs dinâmicas
+    var VIEW_CONFIG = {
+        servers: {
+            title: 'Servers Management',
+            icon: 'fa-server',
+            url: getBaseUrl() + '/brad_bsra?id=cmdb_servers_page'
+        },
+        network: {
+            title: 'Network Devices', 
+            icon: 'fa-sitemap',
+            url: getBaseUrl() + '/brad_bsra?id=cmdb_network'
+        },
+        server_details: {
+            title: 'Server Details',
+            icon: 'fa-list'
+        }
+    };
 ```
 
-### Mapeamento de Servidores (Ainda nao dinamizado) - Escolhe a imagem baseado no sys_class_name
-Em `cmdb_servers/server_script.js`:
+### Mapeamento de Imagens (Ainda nao dinamizado) - Escolhe a imagem baseado no sys_class_name
+Em `cmdb_servers/server_script.js & cmdb_network/cmdb_network.js`: Escolhemos a imagem com base no nome dela. 
 
 ```javascript
 var SERVER_CLASS_MAPPING = {
+    'cmdb_ci_aix_server': { name: 'AIX Server', image: 'aixserver.png', construcao: true },
+    'cmdb_ci_esx_server': { name: 'ESX Server', image: 'aixserver.png' },
+    'cmdb_ci_hcx_server': { name: 'HCX Server', image: 'aixserver.png' },
+    'cmdb_ci_hpux_server': { name: 'HPUX Server', image: 'aixserver.png', construcao: true },
+    'cmdb_ci_hyperv_server': { name: 'Hyper-V Servers', image: 'aixserver.png' },
     'cmdb_ci_linux_server': { name: 'Linux Server', image: 'linuxserver.png' },
+    'cmdb_ci_server': { name: 'Generic Server', image: 'genericservers.png' },
+    'cmdb_ci_solaris_server': { name: 'Solaris Server', image: 'aixserver.png', construcao: true },
+    'cmdb_ci_vmware_vcenter': { name: 'VMware Vcenter', image: 'aixserver.png' },
     'cmdb_ci_win_server': { name: 'Windows Server', image: 'windowsserver.png' }
-    // Adicione mais tipos conforme necessário
 };
-```
 
-### Mapeamento de Redes (Ainda nao dinamizado)  - Escolhe a imagem baseado no sys_class_name
-Em `cmdb_networks/server_script.js`:
-
-```javascript
-var NETWORK_CLASS_MAPPING = {
-    'cmdb_ci_firewall': { name: 'Firewall', image: 'firewall.png' },
-    'cmdb_ci_switch': { name: 'Switch', image: 'switch.png' }
-    // Adicione mais tipos conforme necessário
 };
 ```
 
@@ -109,24 +122,16 @@ Usuário clica em um item
 saveFilter() → salva qual item foi selecionado
     ↓
 Navega para cmdb_details
-    ↓
-Clica em "Voltar" (rever logica)
-    ↓
-getView() → lê preferência salva
-    ↓
-Volta para a página correta
 ```
 
 ## 🛠️ Requisitos
 
-- ServiceNow Instance (Dublin ou superior)
-- Acesso ao módulo de Portal
-- Permissões para criar/editar widgets
-- Script Include global.PortalFilterPrefs criado
+- ServiceNow Instance
+- Itil
+- Script Include global.PortalFilterPrefs
 
 ## 📝 Script Include Necessário
-
-Crie um novo Script Include chamado **`global.PortalFilterPrefs`** com o código em `src/scripts/includes/global.PortalFilterPrefs.js`
+O script include global.PortalFilterPrefs é responsável por gerenciar as preferências do usuário no portal CMDB Explorer. Fornece métodos para salvar e recuperar as escolhas do usuário (view ativa, filtros aplicados, tabela selecionada).
 
 ## ✨ Recursos Adicionais
 
@@ -142,20 +147,3 @@ Crie um novo Script Include chamado **`global.PortalFilterPrefs`** com o código
 - Spinner animado durante carregamento
 - Mensagens de erro apropriadas
 - Estado vazio quando não há resultados
-
-## 🐛 Solução de Problemas
-
-### v1.0.0
-- ✅ Primeiro release
-- ✅ Sidebar dinâmica
-- ✅ Widgets de Servers e Networks
-- ✅ Botão voltar inteligente
-- ✅ Persistência de preferências
-
-## 👨‍💻 Desenvolvedor
-
-Desenvolvido como solução de exploração CMDB no ServiceNow.
-
-## 📄 Licença
-
-Este projeto é fornecido como está para uso em ambientes ServiceNow.
